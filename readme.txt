@@ -16,6 +16,7 @@ The program may be instructed to output lists of vertex parameters in depth-firs
 * 2. Usage
 *
 
+```
 Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
             [-h HEIGHTFILE] [-i INPUTFILE] [-l LOOPFILE] [-m MU] [-N NUM]
             [-o OUTFILE] [-p PROFILE] [-r RANDGEN] [-s SIZE] [-S SEED]
@@ -25,9 +26,9 @@ Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
             [--outfile=OUTFILE] [--profile=PROFILE] [--randgen=RANDGEN]
             [--size=SIZE] [--seed=SEED] [--threads=THREADS] [--vertex=VERTEX]
             [--help] [--usage] [--version] 
+```
 
-
-
+```
   -b, --beta=BETA            Simulate a branching mechanism with a power law
                              P(k) = const / k^{BETA}. Requires the -mu option.
   -c, --centfile=CENTFILE    Output a list of the vertices' closeness
@@ -69,7 +70,7 @@ Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
   -?, --help                 Give this help list
       --usage                Give a short usage message
   -V, --version              Print program version
-
+```
 
 
 
@@ -86,21 +87,25 @@ The following command simulates a Galton--Watson tree conditioned on having 1000
 			P(k) ~ const / k^2.5 
 with expected value 1.0:
 
+```
 grant --size 100000 --mu 1.0 --beta 2.5 --outfile gwtree__100k.graphml
-
+```
 
 The next example simulates a critical offspring distribution 
 			P(k) ~ const / ( k^2 * ln^5.0(k+1) ) 
 that lies in the domain of attraction of a Cauchy law:
 
+```
 grant --size 100000 --mu 1.0 --gamma 5.0 --outfile gwtree_crit_condensation_10k.graphml
-
+```
 
 3.1.2 Generating looptrees:
 
 Use the --loopfile option to generate the looptree. The vertex order and ids in the graphml files for the tree and looptree are kept consistent.
 
+```
 grant --size 10000 --mu 1.0 --beta 2.5 --outfile gwtree__100k.graphml
+```
 
 Note that, using the present sampling method, generating subcritical, heavy tailed Galton-Watson trees conditioned to be large typically takes longer than critical Galton-Watson trees.
 
@@ -115,7 +120,9 @@ together with lists
 			hei1.dat, hei2.dat, ..., hei5.dat
 that contain the closeness centrality, outdegree, and height of each vertex, listed in depth-first-search order. The ids of the nodes in the graphml files correspond to their location in depth-first-search order.
 
+```
 grant -N 5 --size 10000 --mu 1.0 --beta 2.5 --outfile tree%.graphml --centfile cen%.dat --degfile deg%.dat --heightfile hei%.dat
+```
 
 A word of caution: Use this option to generate multiple trees with a single command. Do not call GRANT multiple times within 1 second without specifying the seed for the random number generators. The programs default behaviour is to use the systems timestamp as seed, and this state only changes once per second. See section 3.3 below for further info.
 
@@ -125,7 +132,9 @@ A word of caution: Use this option to generate multiple trees with a single comm
 
 GRANT also supports reading graphml files as input. For example, the command 
 
+```
 grant --input tree.graphml --loopfile looptree.graphml
+```
 
 transforms the tree T from a file tree.graphml
 
@@ -156,7 +165,9 @@ The looptree L(T) depends on the location of the root in T. If no root is specif
 
 A root vertex may also specified explicitly by passing the vertex id to the --vertex option:
 
+```
 grant --vertex 0 --input tree.graphml --loopfile looptree.graphml
+```
 
 
 
@@ -167,7 +178,9 @@ grant --vertex 0 --input tree.graphml --loopfile looptree.graphml
 
 The --randgen option allows us to select a random number generator. For example,
 
+```
 grant -r ranlux --size 100000 --mu 1.0 --beta 2.5 --outfile tree.graphml
+```
 
 uses the ranlux generator. The default is taus2. 
 
@@ -176,7 +189,9 @@ uses the ranlux generator. The default is taus2.
 
 The seed may be set using the -S option:
 
+```
 grant -S 0 -r ranlux --size 100000 --mu 1.0 --beta 2.5 --outfile tree.graphml
+```
 
 TWO words of caution:
 
