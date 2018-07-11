@@ -15,7 +15,7 @@ The program may be instructed to output lists of vertex parameters in depth-firs
 *
 * 2. Usage
 *
-```
+
 Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
             [-h HEIGHTFILE] [-i INPUTFILE] [-l LOOPFILE] [-m MU] [-N NUM]
             [-o OUTFILE] [-p PROFILE] [-r RANDGEN] [-s SIZE] [-S SEED]
@@ -25,7 +25,6 @@ Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
             [--outfile=OUTFILE] [--profile=PROFILE] [--randgen=RANDGEN]
             [--size=SIZE] [--seed=SEED] [--threads=THREADS] [--vertex=VERTEX]
             [--help] [--usage] [--version] 
-```
 
 
   -b, --beta=BETA            Simulate a branching mechanism with a power law
