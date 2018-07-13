@@ -5,9 +5,9 @@
 /*
  *
  * Estimate the Riemann Zeta function
- *                         1       1
- *        zeta(s) = 1  +  ---  +  ---  +  ...
- *                        2^s     3^s
+ *						 1	   1
+ *		zeta(s) = 1  +  ---  +  ---  +  ...
+ *						2^s	 3^s
  */
 
 DOUBLE zeta(DOUBLE s) {
@@ -16,9 +16,9 @@ DOUBLE zeta(DOUBLE s) {
 	DOUBLE zold;
 
 	if(s <= 1.0) {
-        fprintf(stderr, "Zeta function called with invalid argument\n");
-        exit(-1);
-    }
+		fprintf(stderr, "Zeta function called with invalid argument\n");
+		exit(-1);
+	}
 
 	i = 1;
 	z = 0.0;
@@ -38,9 +38,9 @@ DOUBLE zetalog(DOUBLE s, DOUBLE t) {
 	DOUBLE zold;
 
 	if(s < 1.0) {
-        fprintf(stderr, "Function zetalog called with invalid argument\n");
-        exit(-1);
-    }
+		fprintf(stderr, "Function zetalog called with invalid argument\n");
+		exit(-1);
+	}
 
 	i = 1;
 	z = 0.0;
@@ -56,31 +56,31 @@ DOUBLE zetalog(DOUBLE s, DOUBLE t) {
 
 /*
  * Provides a power law offspring distribution
- *        xi[i] = const / i^beta	
+ *		xi[i] = const / i^beta	
  * with a given mean 
- *        mu > 0
+ *		mu > 0
  * and exponent
- *        beta > 2
+ *		beta > 2
  */
 DOUBLE *xipow(INT n, DOUBLE beta, DOUBLE mu) {
-    DOUBLE *xi;
-    INT i;
+	DOUBLE *xi;
+	INT i;
 	DOUBLE c = 0.0;
 	DOUBLE norm = 0.0;
 
 
-    xi = (DOUBLE *) calloc(n, sizeof(DOUBLE));
-    if(xi == NULL) {
-        // memory allocation error
-        fprintf(stderr, "Memory allocation error in function xipow\n");
-        exit(-1);
-    }
+	xi = (DOUBLE *) calloc(n, sizeof(DOUBLE));
+	if(xi == NULL) {
+		// memory allocation error
+		fprintf(stderr, "Memory allocation error in function xipow\n");
+		exit(-1);
+	}
 
 
 	c = mu / zeta(beta - 1.0);
 	xi[0] = 1.0 - c * zeta(beta);
-    for(i=1; i<n; i++) {
-        xi[i] = c / pow( (DOUBLE) i, beta);
+	for(i=1; i<n; i++) {
+		xi[i] = c / pow( (DOUBLE) i, beta);
 	}
 
 	// normalize 
@@ -89,7 +89,7 @@ DOUBLE *xipow(INT n, DOUBLE beta, DOUBLE mu) {
 	for(i=0; i<n; i++)
 		xi[i] /= norm;
 
-    return xi;
+	return xi;
 }
 
 
@@ -97,31 +97,31 @@ DOUBLE *xipow(INT n, DOUBLE beta, DOUBLE mu) {
  * Provides an offspring distribution that lies in the domain
  * of attraction of a Cauchy law
  *
- *                        const
- *        xi[i] = ------------------------
- *                  i * ( ln(i+1) )^gamma
+ *						const
+ *		xi[i] = ------------------------
+ *				  i * ( ln(i+1) )^gamma
  *
  * with mean mu and exponent gamma > 1.0
  */
 DOUBLE *xicau(INT n, DOUBLE gamma, DOUBLE mu) {
-    DOUBLE *xi;
-    INT i;
+	DOUBLE *xi;
+	INT i;
 	DOUBLE c = 0.0;
 	DOUBLE norm = 0.0;
 
 
-    xi = (DOUBLE *) calloc(n, sizeof(DOUBLE));
-    if(xi == NULL) {
-        // memory allocation error
-        fprintf(stderr, "Memory allocation error in function xicau\n");
-        exit(-1);
-    }
+	xi = (DOUBLE *) calloc(n, sizeof(DOUBLE));
+	if(xi == NULL) {
+		// memory allocation error
+		fprintf(stderr, "Memory allocation error in function xicau\n");
+		exit(-1);
+	}
 
 
 	c = mu / zetalog(1.0, gamma);
 	xi[0] = 1.0 - c * zetalog(2.0, gamma);
 	for(i=1; i<n; i++) 
-        xi[i] = c / ( pow( (DOUBLE) i, 2.0) * pow(log((DOUBLE) i+1), gamma));
+		xi[i] = c / ( pow( (DOUBLE) i, 2.0) * pow(log((DOUBLE) i+1), gamma));
 
 
 	// normalize
@@ -130,7 +130,7 @@ DOUBLE *xicau(INT n, DOUBLE gamma, DOUBLE mu) {
 	for(i=0; i<n; i++)
 		xi[i] /= norm;
 
-    return xi;
+	return xi;
 }
 
 

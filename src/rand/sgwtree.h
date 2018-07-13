@@ -5,13 +5,13 @@ INT *gendegsequence(INT *N, INT size, gsl_rng *rgen) {
 	INT i, j, p;	
 	INT *out;
 
-    // result will be stored in an array of integers
-    out = (INT *) calloc(size, sizeof(INT));
-    if(out == NULL) {
-        // memory allocation error
-        fprintf(stderr, "Memory allocation error in function gendegsequence\n");
-        exit(-1);
-    }
+	// result will be stored in an array of integers
+	out = (INT *) calloc(size, sizeof(INT));
+	if(out == NULL) {
+		// memory allocation error
+		fprintf(stderr, "Memory allocation error in function gendegsequence\n");
+		exit(-1);
+	}
 
 	// create initial array with sequential list of outdegrees
 	for(i=0, p=0; i<size; i++)
@@ -43,12 +43,12 @@ int cycshift(INT *D, INT size) {
 	}
 
 	if(indmin < size-1) {
-    	tmp = (INT *) calloc(size, sizeof(INT));
-    	if(tmp == NULL) {
-        	// memory allocation error
-        	fprintf(stderr, "Memory allocation error in function cycshift\n");
-        	exit(-1);
-    	}	
+		tmp = (INT *) calloc(size, sizeof(INT));
+		if(tmp == NULL) {
+			// memory allocation error
+			fprintf(stderr, "Memory allocation error in function cycshift\n");
+			exit(-1);
+		}	
 		
 		// save reordered list in temporary array
 		for(i=indmin+1,j=0; i<size; i++,j++)
@@ -74,7 +74,7 @@ struct graph *deg2bfstree(INT *D, INT len) {
 	struct graph *G;
 	INT pos, i, j;
 
-    // initialize graph
+	// initialize graph
    	G = newgraph(len); 
 	
 	// add edges such that the i th entry of the outdegree list corresponds
