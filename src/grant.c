@@ -176,11 +176,11 @@ int main(int argc, char *argv[]) {
 
 	/* initialize random number generators; one for each thread */
 	rgens = (gsl_rng **) calloc(comarg.threads, sizeof(gsl_rng *));
-    if(rgens == NULL) {
-        // memory allocation error
-        fprintf(stderr, "Memory allocation error in main function.\n");
-        exit(-1);
-    }
+	if(rgens == NULL) {
+		// memory allocation error
+		fprintf(stderr, "Memory allocation error in main function.\n");
+		exit(-1);
+	}
 	for(i=0; i<comarg.threads; i++) {
 		rgens[i] = gsl_rng_alloc(comarg.randgen);
 		// each random generator gets initialized with a unique seed
@@ -198,7 +198,6 @@ int main(int argc, char *argv[]) {
 			rfile(&comarg);
 			break;
 		default:
-			fprintf(stderr, "Please select a valid random model.\n");
 			exit(-1);
 	}
 	
