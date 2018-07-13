@@ -110,24 +110,57 @@ int threadedcentrality(struct graph *G, INT start, INT end, INT numThreads) {
 	pthread_t *th;				// array of threads
 	INT i;
 	void *ret;
-	
-	/* divide the workload */
-	chunkSize = (end - start) / numThreads;
-	if(chunkSize*numThreads < end - start) chunkSize++;
 
-	segList = calloc(sizeof(struct gsegment), numThreads);
-	for(i=0; i<numThreads-1; i++) {
-		segList[i].start = start + i * chunkSize;	
-		segList[i].end = start + (i+1) * chunkSize;	
+	INT *boxes;
+
+
+	/* sanity checks */
+	if(numThreads <= 0) return -1;
+	if(end <= start) return 0;
+	if(G->num > end) return -1;
+		   
+
+	/* divide the workload */
+	boxes = (INT *) calloc(numThreads, sizeof(INT));
+	segList = (struct gsegment *) calloc(numThreads, sizeof(struct gsegment));
+	if(boxes == NULL || segList == NULL) {
+		fprintf(stderr, "Error allocating memory in function threadedcentrality.\n");
+		exit(-1);
+	}
+
+	// end - start - numThreads + 1 <= numThreads * chunkSize <= end - start
+	chunkSize = (end - start) / numThreads;
+
+	// distribute (end - start) balls in numThreads boxes
+	// so that each box has roughly the same number of balls
+	for(i=0; i < numThreads; i++)
+		boxes[i] = chunkSize;
+	for(i=0; i < end - start - chunkSize*numThreads; i++)
+		boxes[i] += 1;
+
+	// "stack" the boxes
+	for(i=1; i < numThreads; i++)
+		boxes[i] += boxes[i-1];
+
+	// set segment
+	segList[0].start = 0;
+	segList[0].end = boxes[0];
+	segList[0].G = G;
+	for(i=1; i<numThreads; i++) {
+		segList[i].start = boxes[i-1];
+		segList[i].end = boxes[i];
 		segList[i].G = G;
 	}
-	segList[numThreads -1].start = chunkSize * (numThreads - 1);
-	segList[numThreads -1].end = end;
-	segList[numThreads -1].G = G;
 
+	free(boxes);
 
 	/* launch threads */	
 	th = calloc(sizeof(pthread_t), numThreads);
+	if(th == NULL) {
+		fprintf(stderr, "Error allocating memory in function threadedcentrality.\n");
+		exit(-1);
+	}
+
 	for(i=0; i<numThreads; i++) {
 		if(pthread_create(&th[i], NULL, &centrality, &segList[i] )) {
 			fprintf(stderr, "Error launching thread number %d\n", i);
