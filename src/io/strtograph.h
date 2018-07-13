@@ -43,30 +43,30 @@ struct bucket {
 void push2bucket(struct bucket *B, struct vlist *vert) {
 	struct vlist *v;
 
-    // create copy of vertex
-    v = (struct vlist *) malloc(sizeof(struct vlist));
-    if(v == NULL) {
-        fprintf(stderr, "Error allocating memory for hashmap");
-        exit(-1);
-    }
-    v->next = NULL;
-    v->ident = (char *) malloc(sizeof(char)*(strlen(vert->ident) + 1));
-    if(v->ident == NULL) {
-        fprintf(stderr, "Error allocating memory for hashmap.\n");
-        exit(-1);
-    }
-    strcpy(v->ident, vert->ident);
+	// create copy of vertex
+	v = (struct vlist *) malloc(sizeof(struct vlist));
+	if(v == NULL) {
+		fprintf(stderr, "Error allocating memory for hashmap");
+		exit(-1);
+	}
+	v->next = NULL;
+	v->ident = (char *) malloc(sizeof(char)*(strlen(vert->ident) + 1));
+	if(v->ident == NULL) {
+		fprintf(stderr, "Error allocating memory for hashmap.\n");
+		exit(-1);
+	}
+	strcpy(v->ident, vert->ident);
 	v->id = vert->id;
 
 
-    // put vertex into bucket
-    if(B->vstart == NULL) {
-        B->vstart = v;
-        B->vend = v;
-    } else {
-        B->vend->next = v;
-        B->vend = v;
-    }
+	// put vertex into bucket
+	if(B->vstart == NULL) {
+		B->vstart = v;
+		B->vend = v;
+	} else {
+		B->vend->next = v;
+		B->vend = v;
+	}
 }
 
 
@@ -148,7 +148,7 @@ struct graph *ini_graph(struct strgraph *H, struct bucket *bucketlist, char *roo
 	INT len = H->vend->id + 1;
 
 
-    // initialize graph
+	// initialize graph
 	G = newgraph(len);
 
 	// add edges	

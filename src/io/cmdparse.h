@@ -142,16 +142,16 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 			arguments->threads = (int) strtoimax(arg, NULL, 10);
 			if(arguments->threads <= 0) {
 				fprintf(stderr, "Error: the number of threads must be positive.\n");
-        		exit(-1);
-    		}
+				exit(-1);
+			}
 			break;
 		case 's':
 			// size parameter for random tree
 			arguments->size = (INT) strtoimax(arg, NULL, 10);
 			if(arguments->size <= 0) {
 				fprintf(stderr, "Error: the SIZE command line argument must be a positive integer.\n");
-        		exit(-1);
-    		}
+				exit(-1);
+			}
 			break;
 		case 'S':
 			// seed for random generator
@@ -329,8 +329,7 @@ int getcmdargs(struct cmdarg *comarg, int argc, char **argv) {
 
 
 
-	// default method is to simulate a Galton-Watson tree conditioned on
-	// its size
+	// default simulation mode
 	comarg->method = 1;
 
 	// the default random generator is the taus2 algorithm

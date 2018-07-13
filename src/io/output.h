@@ -42,7 +42,7 @@ int outdegprofile(INT *N, INT size, char *outfile) {
 
 // counts the number of digits of an integer
 unsigned int count_digits(int arg) {
-    return snprintf(NULL, 0, "%d", arg) - (arg < 0);
+	return snprintf(NULL, 0, "%d", arg) - (arg < 0);
 }
 
 // make string out of integer
@@ -82,11 +82,11 @@ char *uint2zstring(unsigned int p, unsigned int digits) {
 
 	// build format string
 	// example: format = "%u0555" if digits = 555
-    strcpy(format, "%0");
+	strcpy(format, "%0");
 	tmp = uint2string(digits);
 	strcat(format, tmp);
 	free(tmp);
-    strcat(format, "u");
+	strcat(format, "u");
 
 	// build string representation
 	snprintf(res, digits+1, format, p);
@@ -323,15 +323,15 @@ int outcent(struct graph *G, char *outfile) {
 	}
 
 	// open output file if necessary
-    if(outfile == NULL) {
-        outstream = stdout;
-    } else {
-        outstream = fopen(outfile, "w");
-        if(outstream == NULL) {
-            fprintf(stderr, "Error opening output file.\n");
-            exit(-1);
-        }
-    }
+	if(outfile == NULL) {
+		outstream = stdout;
+	} else {
+		outstream = fopen(outfile, "w");
+		if(outstream == NULL) {
+			fprintf(stderr, "Error opening output file.\n");
+			exit(-1);
+		}
+	}
 
 	// output closeness centrality of vertices
 	fprintf(outstream, "{");
