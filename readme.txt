@@ -27,6 +27,7 @@ Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
             [--help] [--usage] [--version] 
 
 
+
   -b, --beta=BETA            Simulate a branching mechanism with a power law
                              P(k) = const / k^{BETA}. Requires the -mu option.
   -c, --centfile=CENTFILE    Output a list of the vertices' closeness
