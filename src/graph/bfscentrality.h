@@ -117,7 +117,7 @@ int threadedcentrality(struct graph *G, INT start, INT end, INT numThreads) {
 	/* sanity checks */
 	if(numThreads <= 0) return -1;
 	if(end <= start) return 0;
-	if(G->num > end) return -1;
+	if(G->num < end) return -1;
 		   
 
 	/* divide the workload */
