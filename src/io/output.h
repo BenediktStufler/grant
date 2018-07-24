@@ -186,12 +186,12 @@ int outdegseq(struct graph *G, char *outfile) {
 	}
 
 	// output degree sequence
-	fprintf(outstream, "{");
+	//fprintf(outstream, "{");
 	for(i=0; i<G->num-1; i++) {
 		fprintf(outstream, "%"STR(FINT)", ", G->arr[i]->deg);	
 	}
 	if(G->num>0) fprintf(outstream, "%"STR(FINT), G->arr[G->num - 1]->deg);	
-	fprintf(outstream, "}\n");
+	//fprintf(outstream, "}\n");
 	
 	// close file if necessary
 	if(outfile != NULL) fclose(outstream);
@@ -219,12 +219,12 @@ int outheightseq(struct graph *G, char *outfile) {
 	}
 
 	// output degree sequence
-	fprintf(outstream, "{");
+	//fprintf(outstream, "{");
 	for(i=0; i<G->num-1; i++) {
 		fprintf(outstream, "%"STR(FINT)", ", G->arr[i]->height);	
 	}
 	if(G->num>0) fprintf(outstream, "%"STR(FINT), G->arr[G->num - 1]->height);	
-	fprintf(outstream, "}\n");
+	//fprintf(outstream, "}\n");
 	
 	// close file if necessary
 	if(outfile != NULL) fclose(outstream);
@@ -334,12 +334,12 @@ int outcent(struct graph *G, char *outfile) {
 	}
 
 	// output closeness centrality of vertices
-	fprintf(outstream, "{");
+	//fprintf(outstream, "{");
 	for(i=start; i<end-1; i++) {
 		fprintf(outstream, "%17.17f, ", num / (double) G->arr[i]->cent);	
 	}
 	if(end>0) fprintf(outstream, "%17.17f", num / (double) G->arr[end-1]->cent);	
-	fprintf(outstream, "}\n");
+	//fprintf(outstream, "}\n");
 
 	// close file if necessary
 	if(outfile != NULL) fclose(outstream);	
