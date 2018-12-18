@@ -129,11 +129,12 @@ struct graph *deg2dfstree(INT *D, INT len) {
  */
 int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 	INT *degprofile;	// outdeg profile
-	DOUBLE *xi;			// offspring law
+	mpfr_t *xi;			// offspring law
 	INT *D;				// degree sequence
 	unsigned int counter;
 	char *cname;
 	struct graph *G, *H;
+	INT i;
 
 	// select offspring distribution
 	if( comarg->Tbeta ) { 
@@ -236,5 +237,11 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 		// clean up
 		free(degprofile);
 	}
+
+	// clean up offspring distribution
+	for(i=0; i<comarg->size; i++)
+		mpfr_clear(xi[i]);
+	free(xi);
+
 	return 0;
 }

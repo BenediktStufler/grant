@@ -42,6 +42,7 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf_gamma.h>
 #include <expat.h>
+#include <mpfr.h>
 
 
 
@@ -49,12 +50,16 @@
  * define data types and format strings for floats and large integers
  * keep in mind that the data type int may occupy only 32bit on 64bit machines
  *
+ * DOUBLE: the data type used for storing probabilities
+ * PREC: precision (in number of bits) used for intermediate floating point
+ *       calculations
  * INT: the data type that needs to be able to store the NUMBER of vertices
  * INTD: the data type that needs to be able to store the sum of distances
  *	   from a single vertex to the rest
  */
-#define DOUBLE double
-#define FDOUBLE 17.17f
+
+#define DOUBLE long double
+#define FDOUBLE 17.17Lf
 
 #define INT unsigned int
 #define FINT u
@@ -62,6 +67,7 @@
 #define INTD unsigned long long
 #define FINTD llu
 
+#define PREC 1024
 
 /* in order to use the format strings we need some macros 
  *

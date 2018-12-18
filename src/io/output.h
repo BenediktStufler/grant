@@ -11,7 +11,7 @@ int outdegprofile(INT *N, INT size, char *outfile) {
 	INT i, j;
 
 	// open output file if necessary
-	if(outfile == NULL) {
+	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
 		outstream = fopen(outfile, "w");
@@ -148,7 +148,7 @@ int outgraph(struct graph *G, char *outfile) {
 	FILE *outstream;	
 
 	// open output file if necessary
-	if(outfile == NULL) {
+	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
 		outstream = fopen(outfile, "w");
@@ -175,7 +175,7 @@ int outdegseq(struct graph *G, char *outfile) {
 	INT i;
 
 	// open output file if necessary
-	if(outfile == NULL) {
+	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
 		outstream = fopen(outfile, "w");
@@ -208,7 +208,7 @@ int outheightseq(struct graph *G, char *outfile) {
 	INT i;
 
 	// open output file if necessary
-	if(outfile == NULL) {
+	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
 		outstream = fopen(outfile, "w");
@@ -243,7 +243,7 @@ int outseq(void *seq, INT size, char *outfile, int format) {
 	INT i;
 
 	// open output file if necessary
-	if(outfile == NULL) {
+	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
 		outstream = fopen(outfile, "w");
@@ -323,7 +323,7 @@ int outcent(struct graph *G, char *outfile) {
 	}
 
 	// open output file if necessary
-	if(outfile == NULL) {
+	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
 		outstream = fopen(outfile, "w");

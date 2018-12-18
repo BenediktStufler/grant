@@ -24,7 +24,7 @@
 struct targ {
 	INT n;
 	INT m;
-	DOUBLE *xi;
+	mpfr_t *xi;
 	gsl_rng *rgen;
 	INT **N;
 	DOUBLE *q;
@@ -50,7 +50,7 @@ void *ballsinboxes(void *dim) {
 	// retrieve data that got passed to thread
 	INT n = ((struct targ *)dim)->n;
 	INT m = ((struct targ *)dim)->m;
-	DOUBLE *xi = ((struct targ *)dim)->xi;
+	mpfr_t *xi = ((struct targ *)dim)->xi;
 	DOUBLE *q = ((struct targ *)dim)->q;
 	INT **N = ((struct targ *)dim)->N;
 	gsl_rng *rgen = ((struct targ *)dim)->rgen;
@@ -101,8 +101,10 @@ void *ballsinboxes(void *dim) {
 
 			// take next sample
 			for(i=0, sumN=0, sumE=0; i<n; i++) {
-				if(xi[i] > 0.0) {
+				if(mpfr_sgn(xi[i])) {		// check if xi[i] > 0.0
 					Nentry[i] = gsl_ran_binomial(rgen, q[i], n - sumN);
+					//DEBUG
+					//printf("%u -- %u, %17.17Lf, %u\n", i, Nentry[i], q[i], n - sumN );
 					sumN += Nentry[i];
 					sumE += i*Nentry[i];
 				} else {
@@ -168,7 +170,7 @@ void *ballsinboxes(void *dim) {
 /*
  * Simulate a balls in boxes model using multiple threads
  */
-INT **threadedbinb(INT n, INT m, DOUBLE *xi, unsigned int numThreads, gsl_rng **rgens, unsigned int num) {
+INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **rgens, unsigned int num) {
 	struct targ *argList;   // arguments for the separate threads
 	pthread_t *th;			// array of threads
 	INT i;
@@ -187,9 +189,9 @@ INT **threadedbinb(INT n, INT m, DOUBLE *xi, unsigned int numThreads, gsl_rng **
 	int ex = 0;
 
 	// variables for preprocessing 
-	DOUBLE norm;
+	mpfr_t norm, sumXi, diff, quot;
 	DOUBLE *q;
-	DOUBLE sumXi;
+
 
 
 	// build array of arrays that will hold the results	
@@ -220,12 +222,41 @@ INT **threadedbinb(INT n, INT m, DOUBLE *xi, unsigned int numThreads, gsl_rng **
 		fprintf(stderr, "Memory allocation error in function threadedbinb\n");
 		exit(-1);
 	}
-	for(i=0, norm=0.0; i<n; i++)
-		norm += xi[i];
-	for(i=0, sumXi=0.0; i<n; i++) {
-		q[i] = xi[i] / (norm - sumXi);
-		sumXi += xi[i];
+
+	// initializes high precision float variables
+	// warning: mpfr sets default value to NaN (gmp initializes with 0.0)
+	mpfr_init2(norm, PREC);
+	mpfr_init2(sumXi, PREC);
+	mpfr_init2(diff, PREC);
+	mpfr_init2(quot, PREC);
+
+	// norm = xi[0] + ... + xi[n-1]
+	mpfr_set_ld(norm, 0.0, MPFR_RNDN);
+	for(i=0; i<n; i++)
+		mpfr_add(norm, norm, xi[i], MPFR_RNDN);		
+
+	// q[i] = xi[i] / (xi[i] + ... + xi[n-1])
+	//      = xi[i] / (norm - xi[0] - ... xi[i-1])
+	mpfr_set_ld(sumXi, 0.0, MPFR_RNDN);
+	for(i=0; i<n; i++) {
+		mpfr_sub(diff, norm, sumXi, MPFR_RNDN);		// diff = norm - sumXi
+		mpfr_div(quot, xi[i], diff, MPFR_RNDN);		// quot = xi[i] / diff
+		q[i] = mpfr_get_ld(quot, MPFR_RNDN);			// cast to DOUBLE
+		mpfr_add(sumXi, sumXi, xi[i], MPFR_RNDN);	// sumXi += xi[i]
+
+		// check for precision error
+		if(q[i]>1.1) {
+			printf("Calculation precision too small for parameter range.\n");
+			printf("Emergency abort.\n");
+			exit(-1);
+		}
 	}
+
+	// free space occupied by high precision variables
+	mpfr_clear(norm);
+	mpfr_clear(sumXi);
+	mpfr_clear(diff);
+	mpfr_clear(quot);
 
 
 	// pack list of arguments
@@ -279,7 +310,7 @@ INT **threadedbinb(INT n, INT m, DOUBLE *xi, unsigned int numThreads, gsl_rng **
  * Wrapper function for generating a single configuration
  * Used when we want to sample a small number of very large trees
  */
-INT *tbinb(INT n, INT m, DOUBLE *xi, unsigned int numThreads, gsl_rng **rgens) {
+INT *tbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **rgens) {
 	INT **multi;
 	INT *single;
 	multi = threadedbinb(n,m,xi,numThreads,rgens,1);
