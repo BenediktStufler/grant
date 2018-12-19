@@ -280,7 +280,7 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 	th = calloc(sizeof(pthread_t), numThreads);
 	for(i=0; i<numThreads; i++) {
 		if(pthread_create(&th[i], NULL, &ballsinboxes, &argList[i] )) {
-			fprintf(stderr, "Error launching thread number %d\n", i);
+			fprintf(stderr, "Error launching thread number %"STR(FINT)"\n", i);
 			exit(-1);
 		}
 	}
@@ -290,7 +290,7 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 	for(i=0; i<numThreads; i++) {
 		pthread_join(th[i], &ret);
 		if(ret) {
-			fprintf(stderr, "Error executing thread number %d\n", i);
+			fprintf(stderr, "Error executing thread number %"STR(FINT)"\n", i);
 			exit(-1);
 		}
 	}
@@ -317,5 +317,46 @@ INT *tbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **rgens) {
 	single = multi[0];
 	free(multi);
 	return single;
+}
+
+/*
+ * Sample a Poisson Balls in Boxes model
+ */
+INT *binbpoisson(INT n, INT m, gsl_rng **rgens) {
+	INT i;
+	INT *bnb;
+	INT *N;
+	INT box;
+
+	// the array of boxes
+	bnb = (INT *) calloc(n, sizeof(INT));
+	N = (INT *) calloc(n, sizeof(INT));
+	if(bnb == NULL || N == NULL) {
+		// memory allocation error
+		fprintf(stderr, "Memory allocation error in function threadedbinb\n");
+		exit(-1);
+	}
+	
+	//DEBUG
+	//printf("RANGE: %lu - %lu\n", gsl_rng_min(rgens[0]), gsl_rng_max(rgens[0]));
+
+	// initialize boxes and profile to 0
+	for(i=0; i<n; i++) {
+		bnb[i] = 0;
+		N[i] = 0;
+	}
+
+	// fill boxes
+	for(i=0; i<m; i++) {
+		box = gsl_rng_uniform_int(rgens[0], n);	
+		bnb[box]++;
+	}
+
+	// calculate profile
+	for(i=0; i<n; i++)
+		N[bnb[i]]++;
+
+
+	return N;
 }
 

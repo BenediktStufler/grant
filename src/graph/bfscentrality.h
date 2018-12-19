@@ -164,7 +164,7 @@ int threadedcentrality(struct graph *G, INT start, INT end, INT numThreads) {
 
 	for(i=0; i<numThreads; i++) {
 		if(pthread_create(&th[i], NULL, &centrality, &segList[i] )) {
-			fprintf(stderr, "Error launching thread number %d\n", i);
+			fprintf(stderr, "Error launching thread number %"STR(FINT)"\n", i);
 			return -1;
 		}
 	}
@@ -174,7 +174,7 @@ int threadedcentrality(struct graph *G, INT start, INT end, INT numThreads) {
 	for(i=0; i<numThreads; i++) {
 		pthread_join(th[i], &ret);
 		if(ret) {
-			fprintf(stderr, "Error executing thread number %d\n", i);
+			fprintf(stderr, "Error executing thread number %"STR(FINT)"\n", i);
 			return -1;
 		}	
 	}

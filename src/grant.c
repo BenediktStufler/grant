@@ -61,8 +61,8 @@
 #define DOUBLE long double
 #define FDOUBLE 17.17Lf
 
-#define INT unsigned int
-#define FINT u
+#define INT unsigned long int
+#define FINT lu
 
 #define INTD unsigned long long
 #define FINTD llu

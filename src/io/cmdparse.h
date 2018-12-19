@@ -24,6 +24,8 @@ struct cmdarg
 	DOUBLE mu;					// paramter for distribution
 	int Tmu;					// has value been set by the user?
 
+	int Tpoisson;				// Poisson offspring distribution?
+
 	char *outfile;				// file to which we write tree 
 	int Toutfile;				// has value been set by the user?
 
@@ -108,6 +110,7 @@ unsigned int getnumcores(void) {
 static struct argp_option options[] =
 {
 	{"size",		's', "SIZE", 0, 	"Simulate a Galton--Watson tree conditioned on having SIZE vertices."},
+	{"poisson",		'P', NULL, 0, 	"Simulate a branching mechanism with a Poisson law."},
 	{"outfile",		'o', "OUTFILE", 0, 	"Output simulated random tree in the graphml format to OUTFILE."},
 	{"mu", 			'm', "MU", 0, 		"Simulate with an offspring distribution that has average value MU."},
 	{"num", 		'N', "NUM", 0, 		"Simulate NUM many samples. Requires the use of the % symbol in all specified output filenames. For example, --num=100 --outfile=tree%.graphml will create the files tree001.graphml, tree002.graphml, ..., tree100.graphml."},
@@ -152,6 +155,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 				fprintf(stderr, "Error: the SIZE command line argument must be a positive integer.\n");
 				exit(-1);
 			}
+			break;
+		case 'P':
+			arguments->Tpoisson = 1;
 			break;
 		case 'S':
 			// seed for random generator
@@ -326,6 +332,7 @@ int getcmdargs(struct cmdarg *comarg, int argc, char **argv) {
 	comarg->Tgamma = 0;
 	comarg->mu = -1.0;
 	comarg->Tmu = 0;
+	comarg->Tpoisson = 0;
 
 
 

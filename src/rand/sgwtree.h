@@ -137,6 +137,7 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 	INT i;
 
 	// select offspring distribution
+	xi = NULL;
 	if( comarg->Tbeta ) { 
 		if(comarg->beta <= 1.0) { 
 			fprintf(stderr, "Error: please specify a sensible value BETA > 2.0\n"); 
@@ -152,7 +153,13 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 			fprintf(stderr, "Error: please specify a sensible value GAMMA > 1.0\n"); 
 			exit(-1); 
 		} 
+		if( !comarg->Tmu || comarg->mu <= 0.0) {
+			fprintf(stderr, "Error: please specify a sensible value mu > 0.\n"); 
+			exit(-1); 
+		}
 		xi = xicau(comarg->size, comarg->gamma, comarg->mu); 
+	} else if( comarg->Tpoisson ) {
+		// do nothing
 	} else { 
 		fprintf(stderr, "Please specify a branching mechanism and an output function via command line options. Example usage:\n\ngrant --beta=2.5 --mu=1.0 --size=100000 --outfile=./stabletree_1.5_100k.graphml --profile=degree_profile.txt\n\nSimulates a critical Galton-Watson tree with a power-law offspring distribution (P(xi = k) ~ const / k^beta) conditioned on having 100k vertices. The resulting graph is written in the graphml format to the specified outfile and the vertex outdegree profile is written to the file specified by the --profile parameter.\n\nYou may run `grant --help' for further options and detailed usage information.\n"); 
 		exit(-1); 
@@ -161,7 +168,11 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 
 	for(counter=1; counter <= comarg->num; counter++) {	
 		/* simulate balls in boxes model */
-		degprofile = tbinb(comarg->size, comarg->size-1, xi, comarg->threads, rgens);
+		if( comarg->Tpoisson ) {
+			degprofile = binbpoisson(comarg->size, comarg->size-1, rgens);
+		} else {
+			degprofile = tbinb(comarg->size, comarg->size-1, xi, comarg->threads, rgens);
+		}
 
 		/* output vertex outdegree profile if requested */
 		if( comarg->Tprofile ) {
@@ -239,9 +250,11 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 	}
 
 	// clean up offspring distribution
-	for(i=0; i<comarg->size; i++)
-		mpfr_clear(xi[i]);
-	free(xi);
+	if(xi != NULL) {
+		for(i=0; i<comarg->size; i++)
+			mpfr_clear(xi[i]);
+		free(xi);
+	}
 
 	return 0;
 }

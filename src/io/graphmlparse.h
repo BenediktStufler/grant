@@ -115,7 +115,7 @@ void print_strgraph(struct strgraph *H) {
 	printf("Vertices: \n");
 	v =  H->vstart;
 	while(v) {
-		printf("%d - \t%s\n", v->id, v->ident);
+		printf("%"STR(FINT)" - \t%s\n", v->id, v->ident);
 		v = v->next;
 	}
 

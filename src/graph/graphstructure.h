@@ -546,13 +546,13 @@ void unit_test_graph() {
 
 	printf("DFS order: ");
 	for(i=0; i<G->num; i++)
-		printf("%d, ", G->dfs[i]->id);
+		printf("%"STR(FINT)", ", G->dfs[i]->id);
 	printf("\n");
 
 	
 	printf("BFS order: ");
 	for(i=0; i<G->num; i++)
-		printf("%d, ", G->bfs[i]->id);
+		printf("%"STR(FINT)", ", G->bfs[i]->id);
 	printf("\n");
 
 	printf("Looptree: \n");
