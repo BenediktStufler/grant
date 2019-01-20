@@ -16,16 +16,15 @@ The program may be instructed to output lists of vertex parameters in depth-firs
 * 2. Usage
 *
 
-Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
+Usage: grant [-P?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
             [-h HEIGHTFILE] [-i INPUTFILE] [-l LOOPFILE] [-m MU] [-N NUM]
             [-o OUTFILE] [-p PROFILE] [-r RANDGEN] [-s SIZE] [-S SEED]
             [-t THREADS] [-v VERTEX] [--beta=BETA] [--centfile=CENTFILE]
             [--degfile=DEGFILE] [--gamma=GAMMA] [--heightfile=HEIGHTFILE]
             [--inputfile=INPUTFILE] [--loopfile=LOOPFILE] [--mu=MU] [--num=NUM]
-            [--outfile=OUTFILE] [--profile=PROFILE] [--randgen=RANDGEN]
-            [--size=SIZE] [--seed=SEED] [--threads=THREADS] [--vertex=VERTEX]
-            [--help] [--usage] [--version] 
-
+            [--outfile=OUTFILE] [--profile=PROFILE] [--poisson]
+            [--randgen=RANDGEN] [--size=SIZE] [--seed=SEED] [--threads=THREADS]
+            [--vertex=VERTEX] [--help] [--usage] [--version] 
 
 
   -b, --beta=BETA            Simulate a branching mechanism with a power law
@@ -52,6 +51,8 @@ Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
   -o, --outfile=OUTFILE      Output simulated random tree in the graphml format
                              to OUTFILE.
   -p, --profile=PROFILE      Output the degree profile to the file PROFILE.
+  -P, --poisson              Simulate a branching mechanism with a Poisson
+                             law.
   -r, --randgen=RANDGEN      Use the pseudo random generator RANDGEN. Available
                              options are taus2, gfsr4, mt19937, ranlux,
                              ranlxs0, ranlxs1, ranlxs2, ranlxd1, ranlxd2, mrg,
@@ -69,7 +70,6 @@ Usage: grant [-?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
   -?, --help                 Give this help list
       --usage                Give a short usage message
   -V, --version              Print program version
-
 
 
 
