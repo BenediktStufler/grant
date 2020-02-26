@@ -113,6 +113,7 @@ void *ballsinboxes(void *dim) {
 
 				// we may abort and start over if we surpass the target
 				if( sumE > m) break;
+				if( sumN > n) break;
 			}	
 		}
 
