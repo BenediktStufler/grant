@@ -180,7 +180,7 @@ mpfr_t *xipow(INT n, DOUBLE beta, DOUBLE mu) {
  *
  *						const
  *		xi[i] = ------------------------
- *				  i * ( ln(i+1) )^gamma
+ *				  i^2 * ( ln(i+1) )^gamma
  *
  * with mean mu and exponent gamma > 1.0
  */
