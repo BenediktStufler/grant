@@ -86,7 +86,7 @@ The following command simulates a Galton--Watson tree conditioned on having 1000
 			P(k) ~ const / k^2.5 
 with expected value 1.0:
 
-grant --size 100000 --mu 1.0 --beta 2.5 --outfile gwtree__100k.graphml
+grant --size 100000 --mu 1.0 --beta 2.5 --outfile gwtree_100k.graphml
 
 
 The next example simulates a critical offspring distribution 
@@ -117,7 +117,7 @@ that contain the closeness centrality, outdegree, and height of each vertex, lis
 
 grant -N 5 --size 10000 --mu 1.0 --beta 2.5 --outfile tree%.graphml --centfile cen%.dat --degfile deg%.dat --heightfile hei%.dat
 
-A word of caution: Use this option to generate multiple trees with a single command. Do not call GRANT multiple times within 1 second without specifying the seed for the random number generators. The programs default behaviour is to use the systems timestamp as seed, and this state only changes once per second. See section 3.3 below for further info.
+A word of caution: Use this option to generate multiple trees with a single command. Do not call GRANT multiple times within 1 second without specifying the seed for the random number generators. GRANT's default behaviour is to use the systems timestamp as seed, and this state only changes once per second. See section 3.3 below for further info.
 
 
 
@@ -154,7 +154,7 @@ to its looptree L(T)
 
 The looptree L(T) depends on the location of the root in T. If no root is specified, GRANT uses the first vertex it encounters in the graphml file. 
 
-A root vertex may also specified explicitly by passing the vertex id to the --vertex option:
+A root vertex may also be specified explicitly by passing the vertex id to the --vertex option:
 
 grant --vertex 0 --input tree.graphml --loopfile looptree.graphml
 

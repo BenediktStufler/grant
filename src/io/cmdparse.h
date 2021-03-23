@@ -26,6 +26,8 @@ struct cmdarg
 
 	int Tpoisson;				// Poisson offspring distribution?
 
+	int Ttria;				// Triangulation offspring distribution?
+
 	char *outfile;				// file to which we write tree 
 	int Toutfile;				// has value been set by the user?
 
@@ -109,6 +111,7 @@ unsigned int getnumcores(void) {
 */
 static struct argp_option options[] =
 {
+	{"tria",		'T', NULL, 0, 	"Simulate a tree with branching law P(k) = c*(k+1)*(k+2)*(1/4)**k"},
 	{"size",		's', "SIZE", 0, 	"Simulate a Galton--Watson tree conditioned on having SIZE vertices."},
 	{"poisson",		'P', NULL, 0, 	"Simulate a branching mechanism with a Poisson law."},
 	{"outfile",		'o', "OUTFILE", 0, 	"Output simulated random tree in the graphml format to OUTFILE."},
@@ -140,6 +143,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 	int num;
 
 	switch (key) {
+		case 'T':
+			arguments->Ttria = 1;
+			break;
 		case 't':
 			// the number of threads we are going to launch
 			arguments->threads = (int) strtoimax(arg, NULL, 10);
@@ -333,6 +339,7 @@ int getcmdargs(struct cmdarg *comarg, int argc, char **argv) {
 	comarg->mu = -1.0;
 	comarg->Tmu = 0;
 	comarg->Tpoisson = 0;
+	comarg->Ttria = 0;
 
 
 

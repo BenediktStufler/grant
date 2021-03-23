@@ -160,6 +160,8 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 		xi = xicau(comarg->size, comarg->gamma, comarg->mu); 
 	} else if( comarg->Tpoisson ) {
 		// do nothing
+	} else if( comarg->Ttria ) {
+		xi = xitria(comarg->size);
 	} else { 
 		fprintf(stderr, "Please specify a branching mechanism and an output function via command line options. Example usage:\n\ngrant --beta=2.5 --mu=1.0 --size=100000 --outfile=./stabletree_1.5_100k.graphml --profile=degree_profile.txt\n\nSimulates a critical Galton-Watson tree with a power-law offspring distribution (P(xi = k) ~ const / k^beta) conditioned on having 100k vertices. The resulting graph is written in the graphml format to the specified outfile and the vertex outdegree profile is written to the file specified by the --profile parameter.\n\nYou may run `grant --help' for further options and detailed usage information.\n"); 
 		exit(-1); 

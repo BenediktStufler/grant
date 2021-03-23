@@ -101,7 +101,8 @@ void *ballsinboxes(void *dim) {
 
 			// take next sample
 			for(i=0, sumN=0, sumE=0; i<n; i++) {
-				if(mpfr_sgn(xi[i])) {		// check if xi[i] > 0.0
+				//if(mpfr_sgn(xi[i])) {		// check if xi[i] > 0.0
+				if(q[i]>0) {		// check if xi[i] > 0.0
 					Nentry[i] = gsl_ran_binomial(rgen, q[i], n - sumN);
 					//DEBUG
 					//printf("%u -- %u, %17.17Lf, %u\n", i, Nentry[i], q[i], n - sumN );
@@ -232,9 +233,10 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 	mpfr_init2(quot, PREC);
 
 	// norm = xi[0] + ... + xi[n-1]
-	mpfr_set_ld(norm, 0.0, MPFR_RNDN);
-	for(i=0; i<n; i++)
-		mpfr_add(norm, norm, xi[i], MPFR_RNDN);		
+	//mpfr_set_ld(norm, 0.0, MPFR_RNDN);
+	//for(i=0; i<n; i++)
+	//	mpfr_add(norm, norm, xi[i], MPFR_RNDN);		
+	mpfr_set_ld(norm, 1.0, MPFR_RNDN);
 
 	// q[i] = xi[i] / (xi[i] + ... + xi[n-1])
 	//      = xi[i] / (norm - xi[0] - ... xi[i-1])
