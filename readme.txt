@@ -16,16 +16,8 @@ The program may be instructed to output lists of vertex parameters in depth-firs
 * 2. Usage
 *
 
-Usage: grant [-P?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
-            [-h HEIGHTFILE] [-i INPUTFILE] [-l LOOPFILE] [-m MU] [-N NUM]
-            [-o OUTFILE] [-p PROFILE] [-r RANDGEN] [-s SIZE] [-S SEED]
-            [-t THREADS] [-v VERTEX] [--beta=BETA] [--centfile=CENTFILE]
-            [--degfile=DEGFILE] [--gamma=GAMMA] [--heightfile=HEIGHTFILE]
-            [--inputfile=INPUTFILE] [--loopfile=LOOPFILE] [--mu=MU] [--num=NUM]
-            [--outfile=OUTFILE] [--profile=PROFILE] [--poisson]
-            [--randgen=RANDGEN] [--size=SIZE] [--seed=SEED] [--threads=THREADS]
-            [--vertex=VERTEX] [--help] [--usage] [--version] 
-
+Usage: grant [OPTION...] 
+grant -- generate random trees
 
   -b, --beta=BETA            Simulate a branching mechanism with a power law
                              P(k) = const / k^{BETA}. Requires the -mu option.
@@ -65,11 +57,14 @@ Usage: grant [-P?V] [-b BETA] [-c CENTFILE] [-d DEGFILE] [-g GAMMA]
                              systems timestamp (in seconds).
   -t, --threads=THREADS      Distribute the workload on THREADS many threads.
                              The default value is the number of CPU cores.
+  -T, --tria                 Simulate a tree with branching law P(k) =
+                             c*(k+1)*(k+2)*(1/4)**k
   -v, --vertex=VERTEX        Specify a root vertex. Used in conjunction with
                              the --inputfile parameter. 
   -?, --help                 Give this help list
       --usage                Give a short usage message
   -V, --version              Print program version
+
 
 
 
@@ -183,4 +178,23 @@ TWO words of caution:
 First: Specifiying the seed for the random number generators does not guarantee that you will always get the same result, unless you set the number of threads to 1 via --threads=1. We cannot predict which thread is going to be fastest in finding an admissible tree, and the output may vary accordingly. This behaviour is called a racing condition.
 
 Second: The default behaviour is to use the systems timestamp (in seconds) as seed. This value only changes once per second, hence calling GRANT multiple times within 1 second is likely to produce unwanted results.
+
+
+4. LICENCE
+
+GRANT - generate random trees
+Copyright (C) 2021  Benedikt Stufler
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
 
