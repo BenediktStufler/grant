@@ -66,12 +66,31 @@ struct cmdarg
  */
 
 
+
 /*
- * use system timestamp (in seconds) as initial random seed
+ * seeding procedure Robert G. Brown
+ * https://sourceware.org/legacy-ml/gsl-discuss/2004-q1/msg00071.html
  */
-unsigned int getseed(void) {
-	return time(NULL);
+unsigned long int getseed(void) {
+        FILE *devr;
+        unsigned long int seed;
+        struct timeval tv;
+
+        if ((devr = fopen("/dev/random","r")) == NULL) {
+                gettimeofday(&tv,0);
+                seed = tv.tv_sec + tv.tv_usec;
+        } else {
+                fread(&seed,sizeof(seed),1,devr);
+                fclose(devr);
+        }
+
+        return seed;
 }
+
+//unsigned int getseed(void) {
+//	return time(NULL);
+//}
+
 
 /*
  * use number of cpu cores as default value for number of threads

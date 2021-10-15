@@ -54,7 +54,7 @@ int cycshift(INT *D, INT size) {
 		for(i=indmin+1,j=0; i<size; i++,j++)
 			tmp[j] = D[i];
 		for(i=0; i<indmin+1; i++,j++)
-			tmp[j] = D[i];
+			tmp[j] = D[i];  // j has now the correct value, despite compiler warnings
 
 		// copy back
 		for(i=0; i<size; i++)

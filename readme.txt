@@ -177,7 +177,7 @@ TWO words of caution:
 
 First: Specifiying the seed for the random number generators does not guarantee that you will always get the same result, unless you set the number of threads to 1 via --threads=1. We cannot predict which thread is going to be fastest in finding an admissible tree, and the output may vary accordingly. This behaviour is called a racing condition.
 
-Second: The default behaviour is to use the systems timestamp (in seconds) as seed. This value only changes once per second, hence calling GRANT multiple times within 1 second is likely to produce unwanted results.
+Second: The default behaviour is to seed using /dev/random. If that fails, the system's time (tv_sec + tv_usec) is used as seed. This value only changes once per millisecond, hence calling GRANT multiple times within 1 millisecond is likely to produce unwanted results.
 
 
 4. LICENCE
