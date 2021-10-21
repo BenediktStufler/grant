@@ -4,7 +4,7 @@ GRANT - Generate RANdom Trees
 * 1. Introduction
 * 
 
-This project implements efficient samplers for random structures. 
+This project implements efficient samplers for random trees.
 
 The current version supports the simulation of Galton-Watson trees conditioned on having a fixed number of vertices. The simulation uses a multithreaded version of an algorithm by Devroye (2012, SIAM Journal of Computing). The idea is to sample multinomially distributed random variates many times until a certain stopping condition is reached.
 
