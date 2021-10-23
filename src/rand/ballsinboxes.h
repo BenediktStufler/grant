@@ -303,6 +303,7 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 	free(argList);
 	free(th);
 	free(q);
+	pthread_mutex_destroy(&mut);
 
 	return N; 
 }
