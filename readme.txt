@@ -180,7 +180,7 @@ First: Specifiying the seed for the random number generators does not guarantee 
 Second: The default behaviour is to seed using /dev/random. If that fails, the system's time (tv_sec + tv_usec) is used as seed. This value only changes once per millisecond, hence calling GRANT multiple times within 1 millisecond is likely to produce unwanted results.
 
 
-4. LICENCE
+4. LICENSE
 
 GRANT - generate random trees
 Copyright (C) 2021  Benedikt Stufler
