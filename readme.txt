@@ -72,8 +72,7 @@ grant -- generate random trees
 * 3. Examples
 *
 
-3.1 Simulating Galton-Watson trees:
-
+3.1 Simulating Galton-Watson trees
 
 3.1.1 Choice of offspring distributions
 
@@ -91,7 +90,7 @@ that lies in the domain of attraction of a Cauchy law:
 grant --size 100000 --mu 1.0 --gamma 5.0 --outfile gwtree_crit_condensation_10k.graphml
 
 
-3.1.2 Generating looptrees:
+3.1.2 Generating looptrees
 
 Use the --loopfile option to generate the looptree. The vertex order and ids in the graphml files for the tree and looptree are kept consistent.
 
@@ -155,7 +154,7 @@ grant --vertex 0 --input tree.graphml --loopfile looptree.graphml
 
 
 
-3.3 The random number generators
+3.3 Pseudo-random number generators
 
 
 3.3.1 Specifying a generator
