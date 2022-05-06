@@ -203,14 +203,16 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 		fprintf(stderr, "Memory allocation error in function threadedbinb\n");
 		exit(-1);
 	}
+	/*
 	for(i=0; i<num; i++) {
-		N[i] = (INT *)  calloc(n, sizeof(INT*));
+		N[i] = (INT *)  calloc(n, sizeof(INT));
 		if(N[i] == NULL) {
 			// memory allocation error
 			fprintf(stderr, "Memory allocation error in function threadedbinb\n");
 			exit(-1);
 		}
 	}
+	*/
 
 	// preprocess the sequence q[] given by 
 	// q[0] = xi[0]
