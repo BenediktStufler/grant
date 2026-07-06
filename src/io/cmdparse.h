@@ -34,7 +34,7 @@ struct cmdarg
 	char *loopfile;				// file to which we write looptree
 	int Tloopfile;				// has value been set by the user?
 
-	char *heightfile;			// file to which we write height profile
+	char *heightfile;			// file to which we write height sequence
 	int Theightfile;			// has value been set by the user?
 
 	char *degfile;				// file to which we write 
@@ -142,7 +142,7 @@ static struct argp_option options[] =
 	{"loopfile",  	'l', "LOOPFILE", 0, "Output the looptree associated to the simulated random tree to LOOPFILE."},
 	{"centfile",  	'c', "CENTFILE", 0, "Output a list of the vertices' closeness centrality to CENTFILE."},
 	{"degfile",  	'd', "DEGFILE", 0, 	"Output the degrees of the depth-first-search ordered list of vertices to DEGFILE."},
-	{"heightfile",  'h', "HEIGHTFILE", 0, "Output the height profile to HEIGHTFILE."},
+	{"heightfile",  'h', "HEIGHTFILE", 0, "Output the height sequence to HEIGHTFILE."},
 	{"inputfile",  'i', "INPUTFILE", 0, "Read a _connected_ graph from file INFILE (graphml format) instead of generating it at random."},
 	{"profile",  	'p', "PROFILE", 0, 	"Output the degree profile to the file PROFILE."},
 	{"vertex",  	'v', "VERTEX", 0, 	"Specify a root vertex. Used in conjunction with the --inputfile parameter. "},

@@ -28,7 +28,7 @@ grant -- generate random trees
   -g, --gamma=GAMMA          Simulate a branching mechanism with distribution
                              P(k) = const / ( k^2 * ln^GAMMA(k+1) ) for k >= 1.
                              Requires the -mu option.
-  -h, --heightfile=HEIGHTFILE   Output the height profile to HEIGHTFILE.
+  -h, --heightfile=HEIGHTFILE   Output the height sequence to HEIGHTFILE.
   -i, --inputfile=INPUTFILE  Read a _connected_ graph from file INFILE (graphml
                              format) instead of generating it at random.
   -l, --loopfile=LOOPFILE    Output the looptree associated to the simulated
