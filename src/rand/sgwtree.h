@@ -194,7 +194,7 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 
 
 			/* calculate graph if necessary */
-			if( comarg->Tdegfile || comarg->Toutfile || comarg->Tloopfile || comarg->heightfile || comarg->Tcentfile ) {
+			if( comarg->Tdegfile || comarg->Toutfile || comarg->Tloopfile || comarg->Theightfile || comarg->Tcentfile ) {
 
 				// already sets the height deg attribute of each vertex
 				// list of vertices is now in dfs order, bfs order is set
