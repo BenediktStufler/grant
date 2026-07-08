@@ -181,7 +181,12 @@ static void XMLCALL start(void *data, const char *el, const char **attr)
 					target = attr[i+1];
 				}
 			}
-			
+		
+			if(source == NULL || target == NULL) {
+    			fprintf(stderr, "Error: GraphML edge is missing source or target.\n");
+    			exit(-1);
+			}
+
 			// add directed edge or undirected edge
 			if(undirected == 1) {
 				pushedge(mydata->H, source, target);

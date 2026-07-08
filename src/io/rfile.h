@@ -18,7 +18,7 @@ int rfile(struct cmdarg *comarg) {
 	G->bfs = bfsorder(G, G->root, 1, 1);
 	if(G->disconnected) {
 		fprintf(stderr, "Error: graph from input file is disconnected. Disconnected graphs are not supported at the moment.\n"); 
-		return -1;
+		exit(-1);
 	}
 
 	/* output degree sequence if requested */
@@ -26,6 +26,11 @@ int rfile(struct cmdarg *comarg) {
 		outdegseq(G, comarg->degfile);
 	}
 	
+	/* output maximal degree if requested */
+	if( comarg->Tmdegfile ) {
+		outmdeggraph(G, comarg->mdegfile);
+	}
+
 	/* output degree profile if requested */
 	if( comarg->Tprofile ) {
 		degprofile = makedegprofile(G);	// assumes that the deg parameters

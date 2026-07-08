@@ -179,14 +179,19 @@ struct graph *ini_graph(struct strgraph *H, struct bucket *bucketlist, char *roo
 struct graph *make_graph(struct strgraph *H, char *rootid) {
 	struct bucket *bucketlist;		// the hashmap
 	struct graph *G;
-	INT len = H->vend->id + 1;
 
 
 	// sanity check: exit if graph is empty
-	if( H == NULL || H->vstart == NULL) {
+	if( H == NULL ) {
 		fprintf(stderr, "Error: received empty graph\n");
 		exit(-1);
 	}
+	if( H->vstart == NULL || H->vend == NULL) {
+		fprintf(stderr, "Error: received empty graph\n");
+		exit(-1);
+	}
+
+	INT len = H->vend->id + 1;
 
 	// initialize hashmap
 	bucketlist = ini_buckets(H);

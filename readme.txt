@@ -17,7 +17,6 @@ The program may be instructed to output lists of vertex parameters in depth-firs
 *
 
 Usage: grant [OPTION...] 
-grant -- generate random trees
 
   -b, --beta=BETA            Simulate a branching mechanism with a power law
                              P(k) = const / k^{BETA}. Requires the -mu option.
@@ -35,8 +34,9 @@ grant -- generate random trees
                              random tree to LOOPFILE.
   -m, --mu=MU                Simulate with an offspring distribution that has
                              average value MU.
-  -N, --num=NUM              Simulate NUM many samples. Requires the use of the
-                             % symbol in all specified output filenames. For
+  -M, --mdegfile=MDEGFILE    Output the maximal outdegree to MDEGFILE.
+  -N, --num=NUM              Simulate NUM many samples. Allows the use of the %
+                             symbol in all specified output filenames. For
                              example, --num=100 --outfile=tree%.graphml will
                              create the files tree001.graphml, tree002.graphml,
                              ..., tree100.graphml.
@@ -67,16 +67,17 @@ grant -- generate random trees
 
 
 
-
 *
 * 3. Examples
 *
 
 3.1 Simulating Galton-Watson trees
 
-3.1.1 Choice of offspring distributions
+All output files are opened in append mode.
 
-The following command simulates a Galton--Watson tree conditioned on having 10000 vertices with an offspring distribution that follows a power law 
+3.1.1 Choice of offspring distribution
+
+The following command simulates a Galton--Watson tree conditioned on having 100000 vertices with an offspring distribution that follows a power law 
 			P(k) ~ const / k^2.5 
 with expected value 1.0:
 
@@ -87,14 +88,14 @@ The next example simulates a critical offspring distribution
 			P(k) ~ const / ( k^2 * ln^5.0(k+1) ) 
 that lies in the domain of attraction of a Cauchy law:
 
-grant --size 100000 --mu 1.0 --gamma 5.0 --outfile gwtree_crit_condensation_10k.graphml
+grant --size 10000 --mu 1.0 --gamma 5.0 --outfile gwtree_crit_condensation_10k.graphml
 
 
 3.1.2 Generating looptrees
 
 Use the --loopfile option to generate the looptree. The vertex order and ids in the graphml files for the tree and looptree are kept consistent.
 
-grant --size 10000 --mu 1.0 --beta 2.5 --outfile gwtree__100k.graphml
+grant --size 100000 --mu 1.0 --beta 2.5 --outfile gwtree__100k.graphml --loopfile looptree_100k.graphml
 
 Note that, using the present sampling method, generating subcritical, heavy tailed Galton-Watson trees conditioned to be large typically takes longer than critical Galton-Watson trees.
 
@@ -111,8 +112,11 @@ that contain the closeness centrality, outdegree, and height of each vertex, lis
 
 grant -N 5 --size 10000 --mu 1.0 --beta 2.5 --outfile tree%.graphml --centfile cen%.dat --degfile deg%.dat --heightfile hei%.dat
 
-A word of caution: Use this option to generate multiple trees with a single command. Do not call GRANT multiple times within 1 second without specifying the seed for the random number generators. GRANT's default behaviour is to use the systems timestamp as seed, and this state only changes once per second. See section 3.3 below for further info.
+You can also aggregate statistics to the same file:
 
+grant -N 5 --size 10000 --mu 1.0 --beta 2.5 --outfile tree%.graphml -M maxdeg.dat 
+
+This creates five files that hold the trees and one file with the maximal degrees of these trees.
 
 
 3.2 Reading files
@@ -152,6 +156,8 @@ A root vertex may also be specified explicitly by passing the vertex id to the -
 
 grant --vertex 0 --input tree.graphml --loopfile looptree.graphml
 
+Important node: the options for outputing the vertex outdegree sequence, vertex outdegree profile and the maximal outdegree work when reading graphs using --input, but they function differently and use regular degrees instead of outdegrees. 
+
 
 
 3.3 Pseudo-random number generators
@@ -174,7 +180,7 @@ grant -S 0 -r ranlux --size 100000 --mu 1.0 --beta 2.5 --outfile tree.graphml
 
 TWO words of caution:
 
-First: Specifiying the seed for the random number generators does not guarantee that you will always get the same result, unless you set the number of threads to 1 via --threads=1. We cannot predict which thread is going to be fastest in finding an admissible tree, and the output may vary accordingly. This behaviour is called a racing condition.
+First: Specifiying the seed for the random number generators does not guarantee that you will always get the same result, unless you set the number of threads to 1 via --threads=1. We cannot predict which thread is going to be fastest in finding an admissible tree, and the output may vary accordingly. This behaviour is called a race condition.
 
 Second: The default behaviour is to seed using /dev/random. If that fails, the system's time (tv_sec + tv_usec) is used as seed. This value only changes once per millisecond, hence calling GRANT multiple times within 1 millisecond is likely to produce unwanted results.
 
@@ -182,7 +188,7 @@ Second: The default behaviour is to seed using /dev/random. If that fails, the s
 4. LICENSE
 
 GRANT - generate random trees
-Copyright (C) 2021  Benedikt Stufler
+Copyright (C) 2026  Benedikt Stufler
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

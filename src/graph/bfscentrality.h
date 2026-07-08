@@ -49,7 +49,12 @@ void *centrality(void *seg) {
 	if(end <= start) {
 		return (void *) 0;
 	}
-	
+	if(num < 2) {
+		fprintf(stderr, "Closeness centrality is undefined for graphs with less than two vertices.\n");
+		return (void *) -1;
+	}
+
+
 	// build helper arrays
 	// make sure to compile code with -pthreads to make these calls thread-safe
 	arr = calloc(sizeof(struct stat), num);

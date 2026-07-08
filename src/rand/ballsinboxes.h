@@ -5,9 +5,7 @@
  * The idea is to sample multinomially distributed random variates many times 
  * until a certain stopping condition is reached. 
  * 
- * We do our best to speed up the computation by distributing the workload 
- * on multiple threads.
- *
+ * We speed up the computation by distributing the workload on multiple threads.
  *
  * References:
  *
@@ -24,17 +22,17 @@
 struct targ {
 	INT n;
 	INT m;
-	mpfr_t *xi;
+	INT *N;
 	gsl_rng *rgen;
-	INT **N;
-	DOUBLE *q;
-	unsigned int num;
-	unsigned int *counter;
 	pthread_mutex_t *mut;
-	int *ex;
+	DOUBLE *q;
+	INT prio;
+	INT bsize;
+	_Atomic INT *mprio;
+	_Atomic INT *wprio;
+	int *win;
+	int id;
 };
-
-
 
 
 /*
@@ -50,30 +48,21 @@ void *ballsinboxes(void *dim) {
 	// retrieve data that got passed to thread
 	INT n = ((struct targ *)dim)->n;
 	INT m = ((struct targ *)dim)->m;
-	mpfr_t *xi = ((struct targ *)dim)->xi;
-	DOUBLE *q = ((struct targ *)dim)->q;
-	INT **N = ((struct targ *)dim)->N;
+	INT *N = ((struct targ *)dim)->N;
 	gsl_rng *rgen = ((struct targ *)dim)->rgen;
-	unsigned int num = ((struct targ *)dim)->num;
-	unsigned int *counter = ((struct targ *)dim)->counter;
 	pthread_mutex_t *mut = ((struct targ *)dim)->mut;
-	int *ex = ((struct targ *)dim)->ex;
+	DOUBLE *q = ((struct targ *)dim)->q;
+	INT prio = ((struct targ *)dim)->prio;
+	INT bsize = ((struct targ *)dim)->bsize;
+	_Atomic INT *mprio = ((struct targ *)dim)->mprio;
+	_Atomic INT *wprio = ((struct targ *)dim)->wprio;
+	int *win = ((struct targ *)dim)->win;
+	int id = ((struct targ *)dim)->id;
 
-	INT i;
+	INT i, k;
 	INT sumN = 0;
 	INT sumE = 0;
-	INT *Nentry;
-
-
-	/* calls to calloc need to be protected by mutex */
-	pthread_mutex_lock(mut);
-	Nentry = (INT *) calloc(n, sizeof(INT));
-	if(Nentry == NULL) {
-		// memory allocation error
-		fprintf(stderr, "Memory allocation error in function balls in boxes\n");
-		exit(-1);
-	}
-	pthread_mutex_unlock(mut);
+	INT best = 0;
 
 
 	/*
@@ -81,40 +70,48 @@ void *ballsinboxes(void *dim) {
 	 * N[1] ~ binom(n - N[0], xi[1] / (norm - xi[0])
 	 * N[2] ~ binom(n - N[0] - N[1], xi[2] / (norm - xi[0] - xi[1])
 	 * and so on
-	 *
 	 */
+	k=0;
 	while(1) {
 		sumE = 0;
-		while( sumE != m) {
+		while( sumE != m || sumN != n) {
+			// update logical order of chunks
+			if(k>=bsize) {
+				k=0;
+				prio = atomic_fetch_add_explicit(mprio, 1, memory_order_relaxed);
+				// DEBUG
+				//printf("Max priority: %"STR(FINT)"\n", *mprio); 
+			}
+			k++;
 
 			// exit condition
-			//
-			if(*ex) {
-				// we found enough configurations 
-				
-				// time to clean up...
-				free(Nentry);
-
-				// ... and go home
-				return (void *) 0;
+			best = atomic_load_explicit(wprio, memory_order_relaxed);
+			if(best != 0 && best < prio) {
+    			return NULL;
 			}
 
 			// take next sample
 			for(i=0, sumN=0, sumE=0; i<n; i++) {
-				//if(mpfr_sgn(xi[i])) {		// check if xi[i] > 0.0
-				if(q[i]>0) {		// check if xi[i] > 0.0
-					Nentry[i] = gsl_ran_binomial(rgen, q[i], n - sumN);
+				if(q[i]>0 && n > sumN) {
+					N[i] = gsl_ran_binomial(rgen, q[i], n - sumN);
 					//DEBUG
 					//printf("%u -- %u, %17.17Lf, %u\n", i, Nentry[i], q[i], n - sumN );
-					sumN += Nentry[i];
-					sumE += i*Nentry[i];
+					sumN += N[i];
+					sumE += i*N[i];
 				} else {
-					Nentry[i] = 0;
+					N[i] = 0;
 				}
 
-				// we may abort and start over if we surpass the target
-				if( sumE > m) break;
-				if( sumN > n) break;
+				// if we used all slots but did not achieve target sumE start over
+				if( n == sumN && sumE != m ) break;
+
+				// if we overshoot the target size start over
+				if(sumE > m) break;
+
+				// the remaining n - sumN slots each contribute at least i+1
+				// we can start over if this will definitely overshoot the target value for sumE
+				// use integer division to avoid overflow in calculation
+				if( (n - sumN) > (m - sumE) / (i+1) ) break;
 			}	
 		}
 
@@ -122,99 +119,35 @@ void *ballsinboxes(void *dim) {
 
 		/* begin of part that is partially locked by mutex */
 		pthread_mutex_lock(mut);
-		if(*counter >= num) {
-			// another thread set the exit condition and we found a valid
-			// balls in boxes configuration right afterwards before getting
-			// to the next check of the exit condition
 
-			// free allocated memory
-			free(Nentry);
-			
-			// unlock mutex  - we're done here
-			pthread_mutex_unlock(mut);
-
-			return (void *) 0;
-		} else {
-			// yay, we found a valid balls in boxes configuration
-			N[*counter] = Nentry;
-			*counter += 1;
-
-			// check if we gathered enough samples
-			if(*counter >= num) {
-				// set exit condition
-				// nothing bad will happen if this operation is not atomic
-				*ex = 1;
-
-				// unlock mutex  - we're done here
-				pthread_mutex_unlock(mut);
-
-				return (void *) 0;
-			}
-
-			// get array for next entry
-			// (remember to protec calloc calls by mutex)
-			Nentry = (INT *) calloc(n, sizeof(INT));
-			if(Nentry == NULL) {
-				// memory allocation error
-				fprintf(stderr, "Memory allocation error in function balls in boxes\n");
-				exit(-1);
-			}
-
+		// best==0: we are the first to find a valid configuration
+		// best!=0 && prio < best: we are not the first to find a valid configuration
+		// and ours takes precedence
+		best = atomic_load_explicit(wprio, memory_order_relaxed);
+		if(best == 0 || prio < best) {
+    		*win = id;
+    		atomic_store_explicit(wprio, prio, memory_order_relaxed);
 		}
-		// unlock mutex - there's still work to do
+		
+		// unlock mutex 
 		pthread_mutex_unlock(mut);
 		/* end of part that is partially locked by mutex */	
-	}
-	
+
+		// exit
+		return (void *) 0;
+	}	
 }
 
 
 /*
- * Simulate a balls in boxes model using multiple threads
+ * precompute probability weights for balls in boxes model
  */
-INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **rgens, unsigned int num) {
-	struct targ *argList;   // arguments for the separate threads
-	pthread_t *th;			// array of threads
-	INT i;
-	void *ret;
-
-	INT **N = NULL;
-
-	// mutex for thread synchronization
-	pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-
-	// the variable counter will only be read / modified in an area 
-	// protected by the mutex mut
-	unsigned int counter = 0;
-
-	// this variable will only be written to in an area protected by mutex mut
-	int ex = 0;
-
-	// variables for preprocessing 
+DOUBLE *precq(mpfr_t *xi, INT n) {
 	mpfr_t norm, sumXi, diff, quot;
 	DOUBLE *q;
+	INT i;
 
-
-
-	// build array of arrays that will hold the results	
-	N = (INT **) calloc(num, sizeof(INT*));
-	if(N == NULL) {
-		// memory allocation error
-		fprintf(stderr, "Memory allocation error in function threadedbinb\n");
-		exit(-1);
-	}
-	/*
-	for(i=0; i<num; i++) {
-		N[i] = (INT *)  calloc(n, sizeof(INT));
-		if(N[i] == NULL) {
-			// memory allocation error
-			fprintf(stderr, "Memory allocation error in function threadedbinb\n");
-			exit(-1);
-		}
-	}
-	*/
-
-	// preprocess the sequence q[] given by 
+	// precompute the sequence q[] given by 
 	// q[0] = xi[0]
 	// q[1] = xi[1] / (1.0 - xi[0])
 	// q[2] = xi[2] / (1.0 - xi[0] - xi[1])
@@ -223,7 +156,7 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 	q = (DOUBLE *) calloc(n, sizeof(DOUBLE));
 	if(q == NULL) {
 		// memory allocation error
-		fprintf(stderr, "Memory allocation error in function threadedbinb\n");
+		fprintf(stderr, "Memory allocation error in function precq\n");
 		exit(-1);
 	}
 
@@ -263,33 +196,71 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 	mpfr_clear(diff);
 	mpfr_clear(quot);
 
+	return q;
+}
+
+
+/*
+ * Simulate a balls in boxes model using multiple threads
+ */
+INT *tbinb(INT n, INT m, DOUBLE *q, unsigned int numThreads, gsl_rng **rgens) {
+	struct targ *argList;   // arguments for the separate threads
+	pthread_t *th;			// array of threads
+	INT i;
+	void *ret;
+
+	INT *N = NULL;
+
+	// mutex for thread synchronization
+	pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+
+	// keep track of logical execution order
+	_Atomic INT mprio;
+	atomic_init(&mprio, numThreads + 1);
+	_Atomic INT wprio;
+	atomic_init(&wprio, 0);
+	int win = 0;
 
 	// pack list of arguments
-	argList = calloc(sizeof(struct targ), numThreads);
+	argList = calloc(numThreads, sizeof(struct targ));
+	if(argList == NULL) {
+		// memory allocation error
+		fprintf(stderr, "Memory allocation error in function tbinb\n");
+		exit(-1);
+	}
+
 	for(i=0; i<numThreads; i++) {
 		argList[i].n = n;
 		argList[i].m = m;
-		argList[i].xi = xi;
-		argList[i].N = N;
+		argList[i].N = calloc(n, sizeof(INT));
+		if(argList[i].N == NULL) {
+			// memory allocation error
+			fprintf(stderr, "Memory allocation error in function tbinb\n");
+			exit(-1);
+		}
 		argList[i].rgen = rgens[i];
-		argList[i].num = num;
-		argList[i].counter = &counter;
 		argList[i].mut = &mut;
 		argList[i].q = q;
-		argList[i].ex = &ex;
+		argList[i].prio = i+1;
+		argList[i].mprio = &mprio;
+		argList[i].wprio = &wprio;
+		argList[i].bsize = 5;
+		argList[i].win = &win;
+		argList[i].id = i;
 	}
 
-
-
 	/* launch threads */
-	th = calloc(sizeof(pthread_t), numThreads);
+	th = calloc(numThreads, sizeof(pthread_t));
+	if(th == NULL) {
+		fprintf(stderr, "Memory allocation error in function tbinb\n");
+		exit(-1);
+	}
 	for(i=0; i<numThreads; i++) {
 		if(pthread_create(&th[i], NULL, &ballsinboxes, &argList[i] )) {
 			fprintf(stderr, "Error launching thread number %"STR(FINT)"\n", i);
 			exit(-1);
 		}
 	}
-
 
 	/* wait for threads to finish */
 	for(i=0; i<numThreads; i++) {
@@ -300,30 +271,24 @@ INT **threadedbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **
 		}
 	}
 
+	/* winning configuration */
+	N = argList[win].N;
+
+	//DEBUG
+	//printf("Max priority: %"STR(FINT)"\n", mprio); 
 
 	/* clean up */
+	for(i=0; i<numThreads; i++)
+		if(i != win) free(argList[i].N);
+
 	free(argList);
 	free(th);
-	free(q);
 	pthread_mutex_destroy(&mut);
 
 	return N; 
 }
 
 
-
-/*
- * Wrapper function for generating a single configuration
- * Used when we want to sample a small number of very large trees
- */
-INT *tbinb(INT n, INT m, mpfr_t *xi, unsigned int numThreads, gsl_rng **rgens) {
-	INT **multi;
-	INT *single;
-	multi = threadedbinb(n,m,xi,numThreads,rgens,1);
-	single = multi[0];
-	free(multi);
-	return single;
-}
 
 /*
  * Sample a Poisson Balls in Boxes model
@@ -339,7 +304,7 @@ INT *binbpoisson(INT n, INT m, gsl_rng **rgens) {
 	N = (INT *) calloc(n, sizeof(INT));
 	if(bnb == NULL || N == NULL) {
 		// memory allocation error
-		fprintf(stderr, "Memory allocation error in function threadedbinb\n");
+		fprintf(stderr, "Memory allocation error in function binbpoisson\n");
 		exit(-1);
 	}
 	
@@ -362,6 +327,8 @@ INT *binbpoisson(INT n, INT m, gsl_rng **rgens) {
 	for(i=0; i<n; i++)
 		N[bnb[i]]++;
 
+	// clean up
+	free(bnb);
 
 	return N;
 }

@@ -130,6 +130,7 @@ struct graph *deg2dfstree(INT *D, INT len) {
 int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 	INT *degprofile;	// outdeg profile
 	mpfr_t *xi;			// offspring law
+	DOUBLE *q;			// weights for bnb modell
 	INT *D;				// degree sequence
 	unsigned int counter;
 	char *cname;
@@ -137,9 +138,10 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 	INT i;
 
 	// select offspring distribution
+	q = NULL;
 	xi = NULL;
 	if( comarg->Tbeta ) { 
-		if(comarg->beta <= 1.0) { 
+		if(comarg->beta <= 2.0) { 
 			fprintf(stderr, "Error: please specify a sensible value BETA > 2.0\n"); 
 			exit(-1); 
 		} 
@@ -167,13 +169,16 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 		exit(-1); 
 	}
 
+	if( !comarg->Tpoisson ) {
+		q = precq(xi, comarg->size);
+	}
 
 	for(counter=1; counter <= comarg->num; counter++) {	
 		/* simulate balls in boxes model */
 		if( comarg->Tpoisson ) {
 			degprofile = binbpoisson(comarg->size, comarg->size-1, rgens);
 		} else {
-			degprofile = tbinb(comarg->size, comarg->size-1, xi, comarg->threads, rgens);
+			degprofile = tbinb(comarg->size, comarg->size-1, q, comarg->threads, rgens);
 		}
 
 		/* output vertex outdegree profile if requested */
@@ -183,6 +188,12 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 			free(cname);
 		}
 
+		/* output maximal degree if requested */
+		if( comarg->Tmdegfile ) {
+			cname = convname(comarg->mdegfile, counter, comarg->num, comarg->Tnum);
+			outmdeg(degprofile, comarg->size, cname);
+			free(cname);
+		}
 
 		/* calculate degree sequence if necessary */
 		if( comarg->Tdegfile || comarg->Toutfile || comarg->Tloopfile || comarg->Theightfile || comarg->Tcentfile ) {
@@ -257,6 +268,8 @@ int gwtree(struct cmdarg *comarg, gsl_rng **rgens) {
 			mpfr_clear(xi[i]);
 		free(xi);
 	}
+
+	if(q != NULL) free(q);
 
 	return 0;
 }

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcc src/grant.c -O2 -Wall -o bin/grant -pthread -lm -lgsl -lmpfr -lgmp -lgslcblas -lexpat
+gcc src/grant.c -std=c11 -O2 -Wall -o bin/grant -pthread -lm -lgsl -lmpfr -lgmp -lgslcblas -lexpat

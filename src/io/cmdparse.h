@@ -40,6 +40,9 @@ struct cmdarg
 	char *degfile;				// file to which we write 
 	int Tdegfile;				// has value been set by the user?
 
+	char *mdegfile;				// file to which we write 
+	int Tmdegfile;				// has value been set by the user?
+
 	char *profile;				// file to which we write outdegree statistics
 	int Tprofile;				// has value been set by the user?
 
@@ -135,13 +138,14 @@ static struct argp_option options[] =
 	{"poisson",		'P', NULL, 0, 	"Simulate a branching mechanism with a Poisson law."},
 	{"outfile",		'o', "OUTFILE", 0, 	"Output simulated random tree in the graphml format to OUTFILE."},
 	{"mu", 			'm', "MU", 0, 		"Simulate with an offspring distribution that has average value MU."},
-	{"num", 		'N', "NUM", 0, 		"Simulate NUM many samples. Requires the use of the % symbol in all specified output filenames. For example, --num=100 --outfile=tree%.graphml will create the files tree001.graphml, tree002.graphml, ..., tree100.graphml."},
+	{"num", 		'N', "NUM", 0, 		"Simulate NUM many samples. Allows the use of the % symbol in all specified output filenames. For example, --num=100 --outfile=tree%.graphml will create the files tree001.graphml, tree002.graphml, ..., tree100.graphml."},
 	{"beta", 		'b', "BETA", 0, 	"Simulate a branching mechanism with a power law P(k) = const / k^{BETA}. Requires the -mu option."},
 	{"gamma", 		'g', "GAMMA", 0, "Simulate a branching mechanism with distribution P(k) = const / ( k^2 * ln^GAMMA(k+1) ) for k >= 1. Requires the -mu option."},
 	{"threads", 	't', "THREADS", 0,	"Distribute the workload on THREADS many threads. The default value is the number of CPU cores."}, 
 	{"loopfile",  	'l', "LOOPFILE", 0, "Output the looptree associated to the simulated random tree to LOOPFILE."},
 	{"centfile",  	'c', "CENTFILE", 0, "Output a list of the vertices' closeness centrality to CENTFILE."},
 	{"degfile",  	'd', "DEGFILE", 0, 	"Output the degrees of the depth-first-search ordered list of vertices to DEGFILE."},
+	{"mdegfile",  	'M', "MDEGFILE", 0, 	"Output the maximal outdegree to MDEGFILE."},
 	{"heightfile",  'h', "HEIGHTFILE", 0, "Output the height sequence to HEIGHTFILE."},
 	{"inputfile",  'i', "INPUTFILE", 0, "Read a _connected_ graph from file INFILE (graphml format) instead of generating it at random."},
 	{"profile",  	'p', "PROFILE", 0, 	"Output the degree profile to the file PROFILE."},
@@ -262,6 +266,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 			arguments->degfile = arg;
 			arguments->Tdegfile = 1;
 			break;
+		case 'M':
+			arguments->mdegfile = arg;
+			arguments->Tmdegfile = 1;
+			break;
 		case 'p':
 			arguments->profile = arg;
 			arguments->Tprofile = 1;
@@ -318,9 +326,6 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 
 
 int getcmdargs(struct cmdarg *comarg, int argc, char **argv) {
-	char *c;
-	int flag;
-
 	/* set command line arguments defaults */
 
 	// default filenames are NULL and have not been set by the user yet
@@ -329,6 +334,9 @@ int getcmdargs(struct cmdarg *comarg, int argc, char **argv) {
 
 	comarg->degfile = NULL;
 	comarg->Tdegfile = 0;
+
+	comarg->mdegfile = NULL;
+	comarg->Tmdegfile = 0;
 
 	comarg->loopfile = NULL;
 	comarg->Tloopfile = 0;
@@ -376,97 +384,6 @@ int getcmdargs(struct cmdarg *comarg, int argc, char **argv) {
 
 	/* read command line arguments and perform some sanity checks*/
 	argp_parse (&argp, argc, argv, 0, 0, comarg);
-
-	/* further sanity checks concerning cross dependencies among parameters */
-
-	// if the --num parameter was set then each output filename 
-	// needs to contain the % symbol.
-	if(comarg->Tnum) {
-		if( comarg->Toutfile ) {
-			flag=1;
-			for(c = comarg->outfile; *c != '\0'; c++) {
-				if( *c == '\045' ) {
-					flag=0;
-					break;
-				}
-			}
-			if( flag ) {
-				fprintf(stderr, "Error: Setting the --num parameter requires you to include the %% symbol in the --outfile parameter (and all other output filenames). It will be replaced by the number of the sample.\n");
-				exit(-1);
-			}
-		}
-
-		if( comarg->Tprofile ) {
-			flag=1;
-			for(c = comarg->profile; *c != '\0'; c++) {
-				if( *c == '\045' ) {
-					flag=0;
-					break;
-				}
-			}
-			if( flag ) {
-				fprintf(stderr, "Error: Setting the --num parameter requires you to include the %% symbol in the --profile parameter (and all other output filenames). It will be replaced by the number of the sample.\n");
-				exit(-1);
-			}
-		}
-
-		if( comarg->Tcentfile ) {
-			flag=1;
-			for(c = comarg->centfile; *c != '\0'; c++) {
-				if( *c == '\045' ) {
-					flag=0;
-					break;
-				}
-			}
-			if( flag ) {
-				fprintf(stderr, "Error: Setting the --num parameter requires you to include the %% symbol in the --centfile parameter (and all other output filenames). It will be replaced by the number of the sample.\n");
-				exit(-1);
-			}
-		}
-
-		if( comarg->Tdegfile ) {
-			flag=1;
-			for(c = comarg->degfile; *c != '\0'; c++) {
-				if( *c == '\045' ) {
-					flag=0;
-					break;
-				}
-			}
-			if( flag ) {
-				fprintf(stderr, "Error: Setting the --num parameter requires you to include the %% symbol in the --degfile parameter (and all other output filenames). It will be replaced by the number of the sample.\n");
-				exit(-1);
-			}
-		}
-
-		if( comarg->Theightfile ) {
-			flag=1;
-			for(c = comarg->heightfile; *c != '\0'; c++) {
-				if( *c == '\045' ) {
-					flag=0;
-					break;
-				}
-			}
-			if( flag ) {
-				fprintf(stderr, "Error: Setting the --num parameter requires you to include the %% symbol in the --heightfile parameter (and all other output filenames). It will be replaced by the number of the sample.\n");
-				exit(-1);
-			}
-		}
-
-		if( comarg->Tloopfile ) {
-			flag=1;
-			for(c = comarg->loopfile; *c != '\0'; c++) {
-				if( *c == '\045' ) {
-					flag=0;
-					break;
-				}
-			}
-			if( flag ) {
-				fprintf(stderr, "Error: Setting the --num parameter requires you to include the %% symbol in the --loopfile parameter (and all other output filenames). It will be replaced by the number of the sample.\n");
-				exit(-1);
-			}
-		}
-
-	}
 
 	return 0;
 }

@@ -14,7 +14,7 @@ int outdegprofile(INT *N, INT size, char *outfile) {
 	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
-		outstream = fopen(outfile, "w");
+		outstream = fopen(outfile, "a");
 		if(outstream == NULL) {
 			fprintf(stderr, "Error opening output file %s.\n", outfile);
 			return(-1);
@@ -38,6 +38,41 @@ int outdegprofile(INT *N, INT size, char *outfile) {
 
 	return 0;
 }
+
+/*
+ * Write maximal outdegree to file
+ */
+int outmdeg(INT *N, INT size, char *outfile) {
+	FILE *outstream;	
+	INT i;
+
+	// open output file if necessary
+	if(outfile == NULL || strlen(outfile) == 0) {
+		outstream = stdout;
+	} else {
+		outstream = fopen(outfile, "a");
+		if(outstream == NULL) {
+			fprintf(stderr, "Error opening output file %s.\n", outfile);
+			return(-1);
+		}
+	}
+
+	// output maximal degree
+	for(i=size; i > 0; i--) {
+		if(N[i-1]>0) {
+			fprintf(outstream, "%"STR(FINT)"\n", i-1);
+			break;
+		}
+	}
+
+	// close file if necessary
+	if(outfile != NULL) fclose(outstream);
+
+	return 0;
+}
+
+
+
 
 
 // counts the number of digits of an integer
@@ -100,25 +135,27 @@ char *uint2zstring(unsigned int p, unsigned int digits) {
 char *convname(char *outfile, unsigned int counter, unsigned int num, int Tnum) {
 	unsigned int digispace, loc;
 	char *paddednumber, *fname;
+	unsigned int len;
 
-	
-	if( Tnum ) {
-		// find location of % symbol
-		for(loc=0; loc<strlen(outfile); loc++) {
-			if( outfile[loc] == '%' ) break;
-		}
-		
-		// safety check - check if % is contained in filename
-		if(loc == strlen(outfile)) {
-			fprintf(stderr, "Error in function multoutdegprofile. Received invalid data. Filename lacks %% symbol.\n");
-			exit(-1);
-		}
+	len=strlen(outfile);
 
+	// check for empty string
+	if(len == 0) {
+		fprintf(stderr, "Error. Received empty filename.\n");
+		exit(-1);
+	}
+
+	// find location of % symbol 
+	for(loc=0; loc<len; loc++) {
+		if( outfile[loc] == '%' ) break;
+	}
+
+	if( Tnum && loc < len ) {
 		// number of digits required to display num
 		digispace = count_digits(num);
 
 		// save to unique filenames
-		fname = (char *) calloc(strlen(outfile) + digispace + 1, sizeof(char)); 
+		fname = (char *) calloc(len + digispace + 1, sizeof(char)); 
 		if(fname == NULL) {
 			fprintf(stderr, "Memory allocation error in function convname.\n");
 			exit(-1);
@@ -130,7 +167,7 @@ char *convname(char *outfile, unsigned int counter, unsigned int num, int Tnum) 
 		strncpy(fname + loc, paddednumber, digispace);
 		free(paddednumber);
 	} else {
-		fname = (char *) calloc(strlen(outfile) + 1, sizeof(char)); 
+		fname = (char *) calloc(len + 1, sizeof(char)); 
 		if(fname == NULL) {
 			fprintf(stderr, "Memory allocation error in function convname.\n");
 			exit(-1);
@@ -151,7 +188,7 @@ int outgraph(struct graph *G, char *outfile) {
 	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
-		outstream = fopen(outfile, "w");
+		outstream = fopen(outfile, "a");
 		if(outstream == NULL) {
 			fprintf(stderr, "Error opening output file %s.\n", outfile);
 			exit(-1);
@@ -178,7 +215,7 @@ int outdegseq(struct graph *G, char *outfile) {
 	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
-		outstream = fopen(outfile, "w");
+		outstream = fopen(outfile, "a");
 		if(outstream == NULL) {
 			fprintf(stderr, "Error opening output file %s.\n", outfile);
 			exit(-1);
@@ -186,12 +223,43 @@ int outdegseq(struct graph *G, char *outfile) {
 	}
 
 	// output degree sequence
-	//fprintf(outstream, "{");
+	fprintf(outstream, "{");
 	for(i=0; i<G->num-1; i++) {
 		fprintf(outstream, "%"STR(FINT)", ", G->arr[i]->deg);	
 	}
 	if(G->num>0) fprintf(outstream, "%"STR(FINT), G->arr[G->num - 1]->deg);	
-	//fprintf(outstream, "}\n");
+	fprintf(outstream, "}\n");
+	
+	// close file if necessary
+	if(outfile != NULL) fclose(outstream);
+
+	return 0;
+}
+
+/*
+ * Output maximal degree
+ */
+int outmdeggraph(struct graph *G, char *outfile) {
+	FILE *outstream;	
+	INT i;
+	INT max;
+
+	// open output file if necessary
+	if(outfile == NULL || strlen(outfile) == 0) {
+		outstream = stdout;
+	} else {
+		outstream = fopen(outfile, "a");
+		if(outstream == NULL) {
+			fprintf(stderr, "Error opening output file %s.\n", outfile);
+			exit(-1);
+		}
+	}
+
+	// output maximal degree sequence
+	for(i=0, max=0; i<G->num; i++) {
+		if(G->arr[i]->deg > max) max = G->arr[i]->deg;
+	}
+	fprintf(outstream, "%"STR(FINT)"\n", max);	
 	
 	// close file if necessary
 	if(outfile != NULL) fclose(outstream);
@@ -211,20 +279,19 @@ int outheightseq(struct graph *G, char *outfile) {
 	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
-		outstream = fopen(outfile, "w");
+		outstream = fopen(outfile, "a");
 		if(outstream == NULL) {
 			fprintf(stderr, "Error opening output file %s.\n", outfile);
 			exit(-1);
 		}
 	}
 
-	// output degree sequence
-	//fprintf(outstream, "{");
+	fprintf(outstream, "{");
 	for(i=0; i<G->num-1; i++) {
 		fprintf(outstream, "%"STR(FINT)", ", G->arr[i]->height);	
 	}
 	if(G->num>0) fprintf(outstream, "%"STR(FINT), G->arr[G->num - 1]->height);	
-	//fprintf(outstream, "}\n");
+	fprintf(outstream, "}\n");
 	
 	// close file if necessary
 	if(outfile != NULL) fclose(outstream);
@@ -246,7 +313,7 @@ int outseq(void *seq, INT size, char *outfile, int format) {
 	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
-		outstream = fopen(outfile, "w");
+		outstream = fopen(outfile, "a");
 		if(outstream == NULL) {
 			fprintf(stderr, "Error opening output file %s.\n", outfile);
 			exit(-1);
@@ -326,7 +393,7 @@ int outcent(struct graph *G, char *outfile) {
 	if(outfile == NULL || strlen(outfile) == 0) {
 		outstream = stdout;
 	} else {
-		outstream = fopen(outfile, "w");
+		outstream = fopen(outfile, "a");
 		if(outstream == NULL) {
 			fprintf(stderr, "Error opening output file.\n");
 			exit(-1);
@@ -334,12 +401,12 @@ int outcent(struct graph *G, char *outfile) {
 	}
 
 	// output closeness centrality of vertices
-	//fprintf(outstream, "{");
+	fprintf(outstream, "{");
 	for(i=start; i<end-1; i++) {
 		fprintf(outstream, "%17.17f, ", num / (double) G->arr[i]->cent);	
 	}
 	if(end>0) fprintf(outstream, "%17.17f", num / (double) G->arr[end-1]->cent);	
-	//fprintf(outstream, "}\n");
+	fprintf(outstream, "}\n");
 
 	// close file if necessary
 	if(outfile != NULL) fclose(outstream);	
